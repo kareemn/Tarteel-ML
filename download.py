@@ -85,13 +85,16 @@ def hasSpeech(wav_bytes, sample_rate, num_channels):
     num_non_speech_frames = 0
     for i in range(0, len(mono_channel_bytes)-bytes_per_vaded_chunk, bytes_per_vaded_chunk):
         chunk_to_vad = mono_channel_bytes[i:i+bytes_per_vaded_chunk]
-        if webrtcvad.valid_rate_and_frame_length(sample_rate, int(len(chunk_to_vad) / bytes_per_sample)) and vad.is_speech(chunk_to_vad, sample_rate):
+        vad_frame_length = int(len(chunk_to_vad) / bytes_per_sample)
+        if webrtcvad.valid_rate_and_frame_length(sample_rate, vad_frame_length) and vad.is_speech(chunk_to_vad, sample_rate):
             num_speech_frames += 1
         else:
             num_non_speech_frames += 1
     emptyAudio = (num_speech_frames == 0 or (num_speech_frames and num_non_speech_frames == 0))
     percentage_non_speech = (float(num_non_speech_frames) / float(num_non_speech_frames+num_speech_frames))
-    print ("percentage non-speech:", percentage_non_speech, "num_speech_frames", num_speech_frames, "num_non_speech_frames", num_non_speech_frames)
+    print ("percentage non-speech:", percentage_non_speech,
+        "num_speech_frames", num_speech_frames,
+        "num_non_speech_frames", num_non_speech_frames)
     return not emptyAudio and percentage_non_speech < 0.5
 
 if __name__ == "__main__":
